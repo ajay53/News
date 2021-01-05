@@ -1,11 +1,5 @@
 package com.example.news.adapter;
 
-import android.content.Context;
-import android.widget.ImageView;
-
-
-import com.example.news.R;
-
 public class GlideBindingAdapter {
 
     /*@BindingAdapter("imageUrl")

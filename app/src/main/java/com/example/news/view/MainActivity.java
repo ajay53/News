@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.news.R;
 import com.example.news.adapter.NewsRecyclerViewAdapter;
+import com.example.news.adapter.SourceRecyclerViewAdapter;
 import com.example.news.model.Article;
 import com.example.news.viewmodel.MainViewModel;
 
@@ -24,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements NewsRecyclerViewA
 
     //widgets
     private RecyclerView rvNews;
-    private NewsRecyclerViewAdapter recyclerViewAdapter;
+    private SourceRecyclerViewAdapter recyclerViewAdapter;
 
     //variables
     private List<Article> articles;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements NewsRecyclerViewA
         Log.d(TAG, "setRecyclerView: ");
         if (articles.size() == 0) return;
 
-        recyclerViewAdapter = new NewsRecyclerViewAdapter(this, articles, this);
+        recyclerViewAdapter = new SourceRecyclerViewAdapter(this, articles, this);
         rvNews.setAdapter(recyclerViewAdapter);
         rvNews.setLayoutManager(new LinearLayoutManager(this));
     }

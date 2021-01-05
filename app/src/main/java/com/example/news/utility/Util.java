@@ -5,10 +5,10 @@ import android.util.Log;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Date;
 
 public class Util {
+
     public static String DateTimeFormatter(String s) {
         String dateStr = "";
         try {
@@ -21,5 +21,9 @@ public class Util {
             e.printStackTrace();
         }
         return "Published At: " + dateStr;
+    }
+
+    public static String getAuthor(String author) {
+        return "Published by: " + author;
     }
 }
