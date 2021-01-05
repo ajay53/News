@@ -1,49 +1,40 @@
-package com.example.news;
+package com.example.news.view;
 
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.news.R;
 import com.example.news.adapter.ViewPagerAdapter;
-import com.example.news.model.News;
-import com.example.news.view.NewsViewPagerFragment;
-import com.example.news.viewmodel.NewsViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
-public class MainActivity extends AppCompatActivity {
+public class ViewPagerActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     //widgets
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
-    public ViewPagerAdapter tabAdapter;
     private ImageView imgLeft, imgRight;
     private TextView tvSource;
 
     //variables
-    private NewsViewModel viewModel;
+    private List<String> sourceIDs;
+    private List<String> sourceNames;
     private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_view_pager);
 
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
@@ -51,12 +42,16 @@ public class MainActivity extends AppCompatActivity {
         imgRight = findViewById(R.id.imgRight);
         tvSource = findViewById(R.id.tvSource);
 
+        if (getIntent().getExtras() != null) {
+            sourceIDs = getIntent().getExtras().getStringArrayList("sourceIDs");
+            sourceNames = getIntent().getExtras().getStringArrayList("sourceNames");
+            position = getIntent().getExtras().getInt("position", 0);
+        }
         init();
     }
 
     private void init() {
-        viewModel = new ViewModelProvider(this).get(NewsViewModel.class);
-
+        //switching tabs via buttons
         imgLeft.setOnClickListener(view ->
         {
             if (position > 0) {
@@ -72,42 +67,36 @@ public class MainActivity extends AppCompatActivity {
             viewPager.setCurrentItem(position);
         });
 
-        viewModel.getNewsFromSource();
-
-        viewModel.getNews().observe(this, newsList -> {
-            //set newsArr
-            if (newsList.size() == 10) {
-                setTabs(newsList);
-            }
-        });
-//        setTabs(News.getNews());
+        setTabs(sourceIDs);
+        viewPager.setCurrentItem(position);
     }
 
-    private void setTabs(List<News> newsArr) {
+    private void setTabs(List<String> sources) {
         Log.d(TAG, "setTabs: ");
 
         List<Fragment> fragments = new ArrayList<>();
 
-        for (News news :
-                newsArr) {
-            NewsViewPagerFragment fragment = NewsViewPagerFragment.getInstance(news);
+        for (String source :
+                sources) {
+            NewsTabItemFragment fragment = NewsTabItemFragment.getInstance(source);
             fragments.add(fragment);
         }
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), getLifecycle(), fragments);
         viewPager.setAdapter(pagerAdapter);
 
-        tvSource.setText(newsArr.get(0).getArticles().get(0).getSource().getName());
+        //setting 1st source
+        tvSource.setText(sourceNames.get(0));
+
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {
-                    String s = newsArr.get(position).getArticles().get(0).getSource().getName();
-                    tab.setText(s);
+                    tab.setText(sourceNames.get(position));
                 }).attach();
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 position = tab.getPosition();
-                tvSource.setText(newsArr.get(position).getArticles().get(0).getSource().getName());
+                tvSource.setText(sourceNames.get(position));
                 Log.d(TAG, "onTabSelected: position: " + tab.getPosition());
             }
 

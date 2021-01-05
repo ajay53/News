@@ -50,7 +50,8 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
                 .into(holder.imgNews);
 
         holder.tvTitle.setText(articles.get(position).getTitle());
-        holder.tvTime.setText(Util.DateTimeFormatter(articles.get(position).getPublishedAt()));
+        holder.tvSource.setText(articles.get(position).getSource().getName());
+//        holder.tvSource.setText(Util.DateTimeFormatter(articles.get(position).getPublishedAt()));
 
         if (position == articles.size() - 1) {
             holder.listDivider.setVisibility(View.GONE);
@@ -67,13 +68,13 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
         OnItemCLickListener onItemCLickListener;
         public ImageView imgNews;
         public TextView tvTitle;
-        public TextView tvTime;
+        public TextView tvSource;
         public View listDivider;
 
         public ViewHolder(@NonNull View itemView, OnItemCLickListener onItemCLickListener) {
 
             super(itemView);
-            tvTime = itemView.findViewById(R.id.tvTime);
+            tvSource = itemView.findViewById(R.id.tvSource);
             tvTitle = itemView.findViewById(R.id.tvTitle);
             imgNews = itemView.findViewById(R.id.imgNews);
             listDivider = itemView.findViewById(R.id.listDivider);

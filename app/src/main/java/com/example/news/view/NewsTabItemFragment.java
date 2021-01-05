@@ -12,6 +12,8 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,7 +27,7 @@ import com.example.news.viewmodel.NewsViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewsViewPagerFragment extends Fragment implements NewsRecyclerViewAdapter.OnItemCLickListener {
+public class NewsTabItemFragment extends Fragment implements NewsRecyclerViewAdapter.OnItemCLickListener {
     private static final String TAG = "NewsFragment";
 
     //widgets
@@ -33,6 +35,7 @@ public class NewsViewPagerFragment extends Fragment implements NewsRecyclerViewA
     private NewsRecyclerViewAdapter recyclerViewAdapter;
 
     //variables
+
     private News news;
     private Context context;
     private NewsViewModel viewModel;
@@ -45,7 +48,7 @@ public class NewsViewPagerFragment extends Fragment implements NewsRecyclerViewA
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_news_viewpager, container, false);
+        return inflater.inflate(R.layout.fragment_news_tab_item, container, false);
     }
 
     @Override
@@ -54,12 +57,12 @@ public class NewsViewPagerFragment extends Fragment implements NewsRecyclerViewA
         setRecyclerView(new ArrayList<>());
     }
 
-    public static NewsViewPagerFragment getInstance(News news) {
-        NewsViewPagerFragment fragment = new NewsViewPagerFragment();
+    public static NewsTabItemFragment getInstance(String source) {
+        NewsTabItemFragment fragment = new NewsTabItemFragment();
 
-        if (news != null) {
+        if (!source.isEmpty()) {
             Bundle bundle = new Bundle();
-            bundle.putParcelable("news", news);
+            bundle.putString("source", source);
             fragment.setArguments(bundle);
         }
         return fragment;
@@ -67,9 +70,11 @@ public class NewsViewPagerFragment extends Fragment implements NewsRecyclerViewA
 
     private void init() {
         context = getContext();
+        viewModel = new ViewModelProvider(this).get(NewsViewModel.class);
 
         if (getArguments() != null) {
-            this.news = getArguments().getParcelable("news");
+            String source = getArguments().getString("source");
+            viewModel.getNewsFromSourceApi(source);
         }
     }
 
@@ -77,8 +82,11 @@ public class NewsViewPagerFragment extends Fragment implements NewsRecyclerViewA
         ProgressBar progressBar = view.findViewById(R.id.progressBar);
         rvNews = view.findViewById(R.id.rvNews);
 
-        setRecyclerView(news.getArticles());
-        progressBar.setVisibility(View.INVISIBLE);
+        viewModel.getNews().observe(getViewLifecycleOwner(), news -> {
+            this.news = news;
+            setRecyclerView(news.getArticles());
+            progressBar.setVisibility(View.INVISIBLE);
+        });
     }
 
     private void setRecyclerView(List<Article> articles) {
@@ -94,11 +102,8 @@ public class NewsViewPagerFragment extends Fragment implements NewsRecyclerViewA
     public void onNewsClick(int position) {
         Log.d(TAG, "onNewsClick: ");
 
-        Util.DateTimeFormatter(news.getArticles().get(position).getPublishedAt());
         Intent intent = new Intent(getActivity(), WebViewActivity.class);
         intent.putExtra("url", news.getArticles().get(position).getUrl());
         getActivity().startActivity(intent);
-
-
     }
 }
